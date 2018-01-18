@@ -1,0 +1,15 @@
+{
+  "name": "project7-twitter",
+  "version": "1.0.0",
+  "description": "FSJS techdegree project 7 creating a twitter client",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Maggie Bignell",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.16.2",
+    "pug": "^2.0.0-rc.4"
+  }
+}
