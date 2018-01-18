@@ -17,6 +17,8 @@ app.use(express.static('public'));
 
 // Connects main routes through index.js
 const mainRoutes = require('./js');
+const cardRoutes = require('./routes/cards');
+
 app.use(mainRoutes);
 
 // If route is not found, render 404
