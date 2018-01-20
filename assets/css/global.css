@@ -5,6 +5,25 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+.error {
+  max-width: 800px;
+  width: 90%;
+  margin: 0 auto;
+}
+
+.error .error-text  {
+  font-size: 14px;
+  font-family: "Work Sans", sans-serif;
+  background-color: #f8f8f8;
+  padding: 20px;
+  margin-top: 30px;
+  overflow-x: scroll;
+}
+.error .error-text pre {
+  font-size: 14px;
+  font-family: "Work Sans", sans-serif;
+}
+
 /* line 19, ../sass/circle/core/_reset.sass */
 body {
   margin: 0;
