@@ -37,21 +37,6 @@ moment.updateLocale('en', {
 app.set('port', process.env.PORT || 8080);
 app.listen(app.get('port'));
 
-// var http = require('http').Server(app);
-// var io = require('socket.io')(http);
-//
-// app.get('/', function(req, res){
-//   res.sendFile(__dirname + '/index.html');
-// });
-//
-// io.on('connection', function(socket){
-//   console.log('a user connected');
-// });
-//
-// http.listen(8080, function(){
-//   console.log('listening on *:8080');
-// });
-
 // Sets pugs as view engine
 app.set('view engine', 'pug');
 
