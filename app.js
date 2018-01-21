@@ -1,12 +1,56 @@
+// Variables for various library imports
 const express = require('express');
+const app = express();
 const config = require('./config');
 const Twit = require('twit')
 const t = new Twit(config);
-const app = express();
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const http = require('http');
+const server = http.createServer(app);
+const moment = require('moment');
+
+app.use(bodyParser.urlencoded({ extended: false}));
+app.use(cookieParser());
+
+// Updates the relative time to format as "4m" or "1h"
+moment.updateLocale('en', {
+    relativeTime: {
+      future: 'in %s',
+      past: '%s',
+      s:  'now',
+      ss: '%ss',
+      m:  '1m',
+      mm: '%dm',
+      h:  '1h',
+      hh: '%dh',
+      d:  '1d',
+      dd: '%dd',
+      M:  '1m',
+      MM: '%dM',
+      y:  '1y',
+      yy: '%dY'
+    }
+  });
 
 // Sets port 8080 instead of localhost:3000 due to conflict on my comp
 app.set('port', process.env.PORT || 8080);
 app.listen(app.get('port'));
+
+// var http = require('http').Server(app);
+// var io = require('socket.io')(http);
+//
+// app.get('/', function(req, res){
+//   res.sendFile(__dirname + '/index.html');
+// });
+//
+// io.on('connection', function(socket){
+//   console.log('a user connected');
+// });
+//
+// http.listen(8080, function(){
+//   console.log('listening on *:8080');
+// });
 
 // Sets pugs as view engine
 app.set('view engine', 'pug');
@@ -17,29 +61,78 @@ app.use(express.static(path.join(__dirname, 'assets')));
 
 app.use(
   (req, res, next) => {
+    // Calls user's home timeline
     t.get('statuses/home_timeline', { count: 5 }, function (err, data, response) {
       req.tweets = data;
-      console.log(req.tweets);
+      next();
     });
-    next();
+  }, (req, res, next) => {
+    // Calls the friends (following) data
+    t.get('friends/list', { count: 5 }, function (err, data, response) {
+      req.following = data;
+      next();
+    });
+  }, (req, res, next) => {
+    // Gets the direct messages the user has *received*
+    t.get('direct_messages', { count: 5 }, function (err, data, response) {
+      req.dmsreceived = data;
+      next();
+    });
+  }, (req, res, next) => {
+    // Gets the direct messages the user has *sent*
+    t.get('direct_messages/sent', { count: 5 }, function (err, data, response) {
+      req.dmssent = data;
+      next();
+    });
+  }, (req, res, next) => {
+    // Gets user data for background image etc
+    t.get('account/verify_credentials', function (err, data, response) {
+      req.currentUser = data;
+      next();
+    });
   }
 )
 
+// Node call when app is created at the index
 app.get('/', function(req, res){
-  const { tweets } = req;
-  res.render('index', { tweets });
-  console.log('ok I got here');
+
+  // Sets up collections as simple variables
+  const { tweets, following, dmsreceived, dmssent, currentUser } = req;
+
+  // Adds relative time as new key value pair on element
+  tweets.forEach(function(item, index, arr) {
+   const date = moment(item.created_at, 'ddd MMM D HH:mm:ss Z YYYY');
+   item.moment_time = date.fromNow();
+  })
+
+  // Combines sent and received DMs into one array
+  const alldms = dmsreceived.concat(dmssent);
+
+  // Adds relative time as new key value pair on Direct Message
+  alldms.forEach(function(item, index, arr) {
+   const date = moment(item.created_at, 'ddd MMM D HH:mm:ss Z YYYY');
+   item.moment_fulltime = date;
+   item.moment_time = date.fromNow();
+  })
+
+  // Sorts sent and received DMs based on the time they were created
+  alldms.sort(function(a, b){
+    return a.moment_fulltime-b.moment_fulltime;
+  })
+
+  // Reverses order to be most recent -> least recent, slices to 5 DMs total
+  alldms.reverse();
+  const fivedms = alldms.slice(0,5);
+
+  // Renders page and passes in variable information
+  res.render('index', { tweets, following, fivedms, currentUser });
 });
 
-// Get followers
-// t.get('followers/ids', { screen_name: 'maggled' },  function (err, data, response) {
-//   // console.log(data);
-// })
 
-// var stream = t.stream('maggled', { stringify_friend_ids: true })
-// stream.on('direct_message', function (directMsg) {
-//   console.log(directMsg);
-// })
+app.post('/', function(req, res) {
+  console.log(req.body.newTweet);
+  res.redirect('/');
+});
 
 // If route is not found, render 404
 app.use((req,res,next) => {
@@ -53,3 +146,5 @@ app.use((err, req, res, next) => {
   res.status(err.status);
   res.render('error');
 });
+
+server.listen(process.env.PORT, process.env.IP);

@@ -9,8 +9,12 @@
   "author": "Maggie Bignell",
   "license": "MIT",
   "dependencies": {
+    "body-parser": "^1.18.2",
+    "cookie-parser": "^1.4.3",
     "express": "^4.16.2",
+    "moment": "^2.20.1",
     "pug": "^2.0.0-rc.4",
+    "socket.io": "^2.0.4",
     "twit": "^2.2.9"
   }
 }
