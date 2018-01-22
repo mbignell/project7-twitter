@@ -1,7 +1,7 @@
 ul.app--tweet--list
   each tweet in tweets
     if !tweet.retweeted_status
-      li
+      li.app--tweet--li
         strong.app--tweet--timestamp= tweet.moment_time
         a.app--tweet--author
           .app--avatar(style=`background-image: url(${tweet.user.profile_image_url})`)
@@ -40,7 +40,7 @@ ul.app--tweet--list
       //- I was just curious how this would work. 
       //- One note: the relative time is indicative of the *retweet* time, not the original tweet.
       //- Unideal, but since this was already out of the project scope, opted not to dive into fixing that
-      li.app--tweet--retweeted
+      li.app--tweet--li.app--tweet--retweeted
         ul.app--tweet--actions.circle--list--inline
           li
             a.app--retweet

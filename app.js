@@ -113,10 +113,19 @@ app.get('/', function(req, res){
   res.render('index', { tweets, following, fivedms, currentUser });
 });
 
-
 app.post('/', function(req, res) {
+  console.log('getting to node')
   console.log(req.body.newTweet);
-  res.redirect('/');
+  const jsonResponse = {
+    tweetText: req.body.newTweet,
+    currentUser: req.currentUser
+  }
+
+  res.json(jsonResponse);
+  // Line that actually would post to twitter
+  // t.post('statuses/update', { status: req.body.newTweet }, function(err, data, response) {
+  //   console.log("Tweet has been twittered.")
+  // })
 });
 
 // If route is not found, render 404
