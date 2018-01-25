@@ -115,12 +115,13 @@ app.get('/', function(req, res){
 
 app.post('/', function(req, res) {
   console.log('getting to node')
-  console.log(req.body.newTweet);
+  console.log(req.body)
+  console.log(req.body.newTweet)
   const jsonResponse = {
     tweetText: req.body.newTweet,
     currentUser: req.currentUser
   }
-
+  console.log(jsonResponse);
   res.json(jsonResponse);
   // Line that actually would post to twitter
   // t.post('statuses/update', { status: req.body.newTweet }, function(err, data, response) {

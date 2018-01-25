@@ -1,5 +1,6 @@
 // Function to make the AJAX request
 document.addEventListener('DOMContentLoaded', function(){
+
   function makeRequest (method, url) {
     return new Promise(function (resolve, reject) {
       var xhr = new XMLHttpRequest()
@@ -27,19 +28,26 @@ document.addEventListener('DOMContentLoaded', function(){
   // }
 
   const tweetButton = document.getElementById('tweetButton');
+  console.log(tweetButton);
   tweetButton.addEventListener("click", function(event){
     event.preventDefault();
-    console.log('getting to default preventation')
+    console.log('getting to default preventation');
+    // Actually making the AJAX request with variable # of employees
     // Actually making the AJAX request with variable # of employees
     makeRequest('POST', '/')
-     .then(
-       console.log('getting to ajax')
-       buildTweetHTML(response)
-     )
+     .then(parse)
      .catch(function (response) {
        alert('Something went wrong')
     });
-  }, false);
+  });
+
+  // Parses the results and builds each employee container
+  function parse(response) {
+    var results = JSON.parse(response)
+    console.log(results);
+    // reponse = results.results;
+    buildTweetHTML(results);
+  }
 
   // Builds HTML of new tweet
   function buildTweetHTML(response) {
