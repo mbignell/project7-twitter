@@ -136,9 +136,13 @@ app.post('/', function(req, res) {
     currentUser: req.currentUser
   }
   res.json(jsonResponse);
-  // Line that posts to twitter. Comment out to avoid actually posting.
+  // Function that posts to twitter. Comment out to avoid actually posting.
   t.post('statuses/update', { status: req.body.newTweet }, function(err, data, response) {
-    console.log("Tweet has been twittered.")
+    if (err) {
+      return next(err);
+    } else {
+      console.log("Tweet has been twittered.")
+    }
   })
 });
 
