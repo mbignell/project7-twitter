@@ -1,31 +1,36 @@
-// Function to make the AJAX request
+// Waits until content is built
 document.addEventListener('DOMContentLoaded', function(){
 
+  // Identifies tweet button in DOM
   const tweetButton = document.getElementById('tweetButton');
-  // Collecting tweet input but not sure how to use this if also using bodyparser?
-  let tweetText = document.getElementById('tweet-textarea').value;
 
   // When tweet button is pressed
+  // --- prevent refresh
+  // --- get value of text area (tweet box)
+  // --- make AJAX call using helper function
   tweetButton.addEventListener("click", function(event){
     event.preventDefault();
-    makeRequest('POST', '/')
+    let tweetText = document.getElementById('tweet-textarea').value;
+    makeRequest('POST', '/', tweetText)
      .then(parse)
      .catch(function (response) {
        alert('Something went wrong')
     });
   });
 
-  // Parses the results
+  // Parses the reponse from the server
   function parse(response) {
     var results = JSON.parse(response)
-    console.log(results);
     buildTweetHTML(results);
   }
 
-  function makeRequest (method, url) {
+  // AJAX helper function
+  function makeRequest (method, url, content) {
     return new Promise(function (resolve, reject) {
       var xhr = new XMLHttpRequest()
       xhr.open(method, url)
+      xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+      xhr.send(JSON.stringify({newTweet: content}));
       xhr.onload = function () {
        if (this.status >= 200 && this.status < 300) {
          resolve(xhr.response)
@@ -36,27 +41,19 @@ document.addEventListener('DOMContentLoaded', function(){
       xhr.onerror = function () {
        reject({ status: this.status, statusText: xhr.statusText });
       }
-      xhr.send()
     })
   }
-  // let testResponse = {
-  //   tweetText: "example",
-  //   currentUser: {
-  //     profile_image_url: 'ugh',
-  //     name: 'maggie',
-  //     screen_name: 'realmaggie'
-  //   }
-  // }
 
   // Builds HTML of new tweet
   function buildTweetHTML(response) {
+    // Gets the UL list of tweets
     const tweetList = document.getElementsByClassName('app--tweet--list')[0];
-    console.log(tweetList.firstChild);
 
+    // Creates new list element
     let newTweet = document.createElement("LI");
     newTweet.classList.add("app--tweet--li");
 
-    let newTweetHTML = `<li class="app--tweet--li"><strong class="app--tweet--timestamp">now</strong>` +
+    let newTweetHTML = `<strong class="app--tweet--timestamp">now</strong>` +
     `<a class="app--tweet--author">` +
     `<div class="app--avatar" style="background-image: url(${response.currentUser.profile_image_url});">` +
     `<img src="${response.currentUser.profile_image_url}">` +
@@ -75,8 +72,11 @@ document.addEventListener('DOMContentLoaded', function(){
     `</svg><strong>0</strong></a></li></ul>`;
 
     newTweet.innerHTML = newTweetHTML;
-    console.log(newTweet);
 
+    // insert new tweet above other tweets
     tweetList.insertBefore(newTweet, tweetList.firstChild);
+
+    // reset tweet text area
+    document.getElementById('tweet-textarea').value = "";
   }
 }, false);

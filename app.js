@@ -5,14 +5,12 @@ const config = require('./config');
 const Twit = require('twit')
 const t = new Twit(config);
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
 const http = require('http');
 const server = http.createServer(app);
 const moment = require('moment');
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json());
-app.use(cookieParser());
 
 // Updates the relative time to format as "4m" or "1h"
 moment.updateLocale('en', {
@@ -45,6 +43,7 @@ app.set('view engine', 'pug');
 const path = require('path')
 app.use(express.static(path.join(__dirname, 'assets')));
 
+// Uses Twit to call various data about the user and their twitter experience
 app.use(
   (req, res, next) => {
     // Calls user's home timeline
@@ -129,19 +128,18 @@ app.get('/', function(req, res){
   res.render('index', { tweets, following, fivedms, currentUser });
 });
 
+// Handles the AJAX post request from tweetpost.js
 app.post('/', function(req, res) {
-  console.log("body of request: ")
-  console.log(req.body)
-  console.log("new tweet: " + req.body.newTweet)
+  // Creates an object with the user info and tweet information
   const jsonResponse = {
     tweetText: req.body.newTweet,
     currentUser: req.currentUser
   }
   res.json(jsonResponse);
-  // Line that actually would post to twitter
-  // t.post('statuses/update', { status: req.body.newTweet }, function(err, data, response) {
-  //   console.log("Tweet has been twittered.")
-  // })
+  // Line that posts to twitter. Comment out to avoid actually posting.
+  t.post('statuses/update', { status: req.body.newTweet }, function(err, data, response) {
+    console.log("Tweet has been twittered.")
+  })
 });
 
 // If route is not found, render 404
