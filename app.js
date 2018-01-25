@@ -10,7 +10,8 @@ const http = require('http');
 const server = http.createServer(app);
 const moment = require('moment');
 
-app.use(bodyParser.urlencoded({ extended: false}));
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json());
 app.use(cookieParser());
 
 // Updates the relative time to format as "4m" or "1h"
@@ -48,30 +49,45 @@ app.use(
   (req, res, next) => {
     // Calls user's home timeline
     t.get('statuses/home_timeline', { count: 5 }, function (err, data, response) {
+      if(err) {
+        return next(err)
+      }
       req.tweets = data;
       next();
     });
   }, (req, res, next) => {
     // Calls the friends (following) data
     t.get('friends/list', { count: 5 }, function (err, data, response) {
+      if(err) {
+        return next(err)
+      }
       req.following = data;
       next();
     });
   }, (req, res, next) => {
     // Gets the direct messages the user has *received*
     t.get('direct_messages', { count: 5 }, function (err, data, response) {
+      if(err) {
+        return next(err)
+      }
       req.dmsreceived = data;
-      next();
+      next(err);
     });
   }, (req, res, next) => {
     // Gets the direct messages the user has *sent*
     t.get('direct_messages/sent', { count: 5 }, function (err, data, response) {
+      if(err) {
+        return next(err)
+      }
       req.dmssent = data;
       next();
     });
   }, (req, res, next) => {
     // Gets user data for background image etc
     t.get('account/verify_credentials', function (err, data, response) {
+      if(err) {
+        return next(err)
+      }
       req.currentUser = data;
       next();
     });
